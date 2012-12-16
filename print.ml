@@ -61,5 +61,13 @@ let rec typed_lambda_aux b ppf t =
         fprintf ppf "< %a ; %a >" (typed_lambda_aux false) t1 (typed_lambda_aux false) t2
     | Pro t ->
         fprintf ppf "!%a" (typed_lambda_aux true) t
+    | InjLeft (t, typ1, typ2) -> 
+        fprintf ppf "{ %a : %a | %a }" (typed_lambda_aux false) t linear_type typ1 linear_type typ2
+    | InjRight (t, typ1, typ2) -> 
+        fprintf ppf "{ %a | %a : %a }" linear_type typ1 (typed_lambda_aux false) t linear_type typ2
+    | Match (t, (x1, t1), (x2, t2)) ->
+        fprintf ppf
+          (if b then "(match %a as | %s -> %a | %s -> %a)" else  "match %a as | %s -> %a | %s -> %a")
+          (typed_lambda_aux false) t x1 (typed_lambda_aux false) t1 x2 (typed_lambda_aux false) t2
 
 let typed_lambda = typed_lambda_aux false

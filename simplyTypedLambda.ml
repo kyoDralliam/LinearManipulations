@@ -10,6 +10,9 @@ and typed_lambda_node =
   | Des of string * string * typed_lambda * typed_lambda
   | Pair of typed_lambda * typed_lambda
   | Pro of typed_lambda
+  | InjLeft of typed_lambda * linear_type * linear_type
+  | InjRight of typed_lambda * linear_type * linear_type
+  | Match of typed_lambda * (string * typed_lambda) * (string * typed_lambda)
       
 module TypedLambdaNode =
 struct
@@ -26,10 +29,15 @@ struct
       | Pair (t1a, t2a), Pair (t1b, t2b) ->
           t1a == t1b && t2a == t2b
       | Pro t1, Pro t2 -> t1 == t2
+      | InjLeft (ta, typa1, typa2), InjLeft (tb, typb1, typb2) 
+      | InjRight (ta, typa1, typa2), InjRight (tb, typb1, typb2) ->
+          ta == tb && typa1 == typb1 && typa2 == typb2 
+      | Match (ta, (xa1, ta1), (xa2, ta2)), Match (tb, (xb1, tb1), (xb2, tb2)) ->
+          ta == tb && xa1 = xb1 && ta1 == tb1 && xa2 = xb2 && ta2 == tb2
       | _ -> false
           
   let f x y = 19 * x + y
-    
+
   let hash = function
     | Var x -> Hashtbl.hash x
     | App (t, tl) -> abs (f (List.fold_left f t.hkey (List.map (fun x -> x.hkey) tl)) 1)
@@ -41,6 +49,13 @@ struct
     | Pair (t1, t2) ->
         abs (f (f t1.hkey t2.hkey) 4)
     | Pro t -> abs (f t.hkey 5)
+    | InjLeft (ta, typa1, typa2) ->
+        abs (f (f (f ta.hkey typa1.hkey) typa2.hkey) 6)
+    | InjRight (ta, typa1, typa2) ->
+        abs (f (f (f ta.hkey typa1.hkey) typa2.hkey) 7)
+    | Match (ta, (xa1, ta1), (xa2, ta2)) ->
+        abs (f (f (f (f ta.hkey & Hashtbl.hash xa1) ta1.hkey) & Hashtbl.hash xa2) ta2.hkey) 
+
 end
   
 module HTypedLambda = Hashcons.Make(TypedLambdaNode)
@@ -74,3 +89,12 @@ let destr x1 x2 x t = HTypedLambda.hashcons table & Des (x1,x2,x,t)
 let pair t1 t2 = HTypedLambda.hashcons table & Pair (t1, t2)
 
 let promote t = HTypedLambda.hashcons table & Pro t
+
+let left t typ1 typ2 = 
+  HTypedLambda.hashcons table &  InjLeft (t, typ1, typ2)
+
+let right t typ1 typ2 = 
+  HTypedLambda.hashcons table & InjRight (t, typ1, typ2)
+
+let match2 t branch1 branch2 = 
+  HTypedLambda.hashcons table & Match (t, branch1, branch2)

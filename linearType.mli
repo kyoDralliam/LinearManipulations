@@ -19,6 +19,7 @@ and  linear_type_node =
 
 val base : string -> linear_type
 val tvar : string -> linear_type
+val plus : linear_type -> linear_type -> linear_type
 val times : linear_type -> linear_type -> linear_type
 val (!) : linear_type -> linear_type
 val (=>) : linear_type -> linear_type -> linear_type

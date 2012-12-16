@@ -18,18 +18,23 @@ rule token = parse
   | "!"              { OF_COURSE }
   | "("              { LPAR }
   | ")"              { RPAR }
+  | "{"              { LBR }
+  | "}"              { RBR }
   | "["              { LSQBR }
   | "]"              { RSQBR }
   | "<"              { LT }
   | ">"              { GT }
   | "="              { EQ }
+  | "+"              { PLUS }
   | "*"              { STAR }
   | "->"             { ARR }
   | "-o"             { LARR }
   | "."              { DOT }
   | ":"              { COLON }
+  | ";"              { SEMICOLON }
   | ","              { COMMA }
   | "destruct"       { DESTRUCT }
+  | "match"          { MATCH }
   | "as"             { AS }
   | "in"             { IN }
   | "type"           { TYPE }

@@ -42,6 +42,8 @@ let _ = Format.printf "curry : %a@\n" Print.typed_lambda curry
 let _ = Format.printf "type of curry : %a@\n" Print.linear_type (type_of_term SMap.empty curry)
 
 
+
+
 let uncurry = 
   let f = var "f" in
   lam ["f", ta => (tb => tc); "z", times ta tb] 
@@ -52,13 +54,17 @@ let _ = Format.printf "type of uncurry : %a@\n"
   Print.linear_type (type_of_term SMap.empty uncurry)
 
 
-let modus_ponens =
-  lam ["x", !ta ; "u", !(ta => tb)] (promote (app u x))
 
+let promotion_test = 
+  Format.printf "@\nTest of promotion :@\n" ;
 
-let _ = Format.printf "modus ponens : %a@\n" Print.typed_lambda modus_ponens
-let _ = Format.printf "type of modus ponens : %a@\n" 
-  Print.linear_type (type_of_term SMap.empty modus_ponens)
+  let modus_ponens =
+    lam ["x", !ta ; "u", !(ta => tb)] (promote (app u x)) in
+
+  Format.printf "modus ponens : %a@\n" Print.typed_lambda modus_ponens ;
+  Format.printf "type of modus ponens : %a@\n" 
+    Print.linear_type (type_of_term SMap.empty modus_ponens) ;
+  true
 
 
 let test_nat = 
@@ -67,9 +73,23 @@ let test_nat =
 
   Format.printf "@\ntest_nat : @\n" ;
 
-  let one = List.assoc "one" terms in
-  Format.printf "%a@\n" Print.typed_lambda one ;
+  let print_results (s, t) = 
+    Format.printf "term %s : %a@\n" s Print.typed_lambda t ;
+    Format.printf "type of %s : %a@\n" s Print.linear_type 
+      (SimplyTyping.type_of_term Tools.SMap.empty t) 
+  in
 
-  let one_type = SimplyTyping.type_of_term Tools.SMap.empty one in
-  Format.printf "%a@\n" Print.linear_type one_type 
+  List.iter print_results terms ;
+  
+  true
 
+
+let test_plus = 
+  let l = base "left" in 
+  let r = base "right" in 
+  let r_fun = lam [ "x" , r ] (right x l r) in
+  let codiag = lam [ "x" , plus ta ta] (match2 x ("y", y) ("y", y)) in
+  let t = pair (r_fun) (codiag) in
+  Format.printf "%a@\n" Print.typed_lambda t ;
+  Format.printf "%a@\n" Print.linear_type (SimplyTyping.type_of_term Tools.SMap.empty t)
+    

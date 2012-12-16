@@ -59,6 +59,7 @@ let table = HType.create 171
 let base s = HType.hashcons table & Base s
 let tvar x = HType.hashcons table & TypeVar x
 let times t1 t2 = HType.hashcons table & Times (t1, t2)
+let plus t1 t2 = HType.hashcons table & Plus (t1, t2)
 let (!) t = HType.hashcons table & OfCourse t
 let (=>) t1 t2 = HType.hashcons table & Arr (t1, t2)
 

@@ -65,7 +65,7 @@ let rec type_of_term_aux ctx t =
       let aux () =
         let typ_t, ctx' = 
           let ctx = 
-            List.fold_left (fun ctx (x, typ_x) -> SMap.add x typ_x ctx) SMap.empty args 
+            List.fold_left (fun ctx (x, typ_x) -> SMap.add x typ_x ctx) ctx args 
           in type_of_term_aux ctx t in
         let add_arg_type (x,typ) typ0 = 
           match typ.node with 
@@ -109,6 +109,39 @@ let rec type_of_term_aux ctx t =
       if SMap.for_all (fun _ t -> match t.node with OfCourse _ -> true | _ -> false) env
       then !typ_t, ctx'
       else failwith "cannot promote this term"
+
+  | InjLeft (t, typ1, typ2) ->
+      let typ_t, ctx' = type_of_term_aux ctx t in
+      if typ_t == typ1 
+      then plus typ1 typ2, ctx'
+      else failwith "bad type annotation in sum construct"
+
+  | InjRight (t, typ1, typ2) ->
+      let typ_t, ctx' = type_of_term_aux ctx t in
+      if typ_t == typ2
+      then plus typ1 typ2, ctx'
+      else failwith "bad type annotation in sum construct"
+
+  | Match (t, (x1, t1), (x2, t2)) ->
+      let typ_t, ctx' = type_of_term_aux ctx t in
+      let typ1, typ2 = 
+        match (get_linear_part typ_t).node with 
+          | Plus (typ1, typ2) -> (typ1, typ2)
+          | _ -> raise (NotWellTyped ("Should have plus type", [t, typ_t]))
+      in 
+
+      let aux () = 
+        let ctx' = SMap.add x1 typ1 (SMap.add x2 typ2 ctx') in
+        let typ_t1, ctx_1 = type_of_term_aux ctx' t1 in
+        let typ_t2, ctx_2 = type_of_term_aux ctx' t2 in
+        if typ_t1 == typ_t2 && SMap.equal (==) ctx_1 ctx_2
+        then typ_t1, ctx_1
+        else 
+          let msg = "Each branch of the match should have the same type and use the same context" in
+          raise (NotWellTyped (msg, [t1, typ_t1 ; t2, typ_t2]))
+      in
+        
+      variable_shadowing [ x1 ; x2 ] ctx' aux
 
 and variable_shadowing var_list ctx f = 
   let has_old_binding = List.filter (fun x -> SMap.mem x ctx) var_list in
