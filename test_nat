@@ -1,0 +1,5 @@
+type nat = A -o !(A -o A) -o A
+
+let zero = \ (x : A) (f : !(A -o A)) . x
+let succ = \ (n : [nat]) (x : A) (f : !(A -o A)) . n (f x) f
+let one = [succ] [zero]

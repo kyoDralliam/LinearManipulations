@@ -1,5 +1,6 @@
 open Tools
 open LinearType
+open Hashcons
 
 type typed_lambda = typed_lambda_node Hashcons.hash_consed
 and typed_lambda_node =

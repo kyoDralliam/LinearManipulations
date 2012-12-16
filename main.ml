@@ -61,3 +61,15 @@ let _ = Format.printf "type of modus ponens : %a@\n"
   Print.linear_type (type_of_term SMap.empty modus_ponens)
 
 
+let test_nat = 
+  let cin = open_in "test_nat" in
+  let terms, types = Parser.file Lexer.token (Lexing.from_channel cin) in
+
+  Format.printf "@\ntest_nat : @\n" ;
+
+  let one = List.assoc "one" terms in
+  Format.printf "%a@\n" Print.typed_lambda one ;
+
+  let one_type = SimplyTyping.type_of_term Tools.SMap.empty one in
+  Format.printf "%a@\n" Print.linear_type one_type 
+

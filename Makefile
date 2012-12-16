@@ -2,7 +2,8 @@
 
 
 all :
-	ocamlbuild main.native
+	ocamlbuild -use-menhir main.native
 
 cmo :
-	ocamlbuild main.cmo
+	ocamlbuild -use-menhir main.cmo
+

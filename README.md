@@ -17,8 +17,11 @@ Build :
 From root directory : 
 
       $ make
-or 
-      $ make cmo
+
+or
+
+        $ make cmo
+
 
 if you prefer toying with the toplevel.
 

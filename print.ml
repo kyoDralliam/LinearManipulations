@@ -18,7 +18,7 @@ let cond lvl lvl' side = lvl > lvl' || (lvl = lvl' && side = L)
   
 let rec linear_type_aux lvl side ppf t =
   match t.node with
-    | Base s -> pp_print_string ppf s
+    | Base s | TypeVar s -> pp_print_string ppf s
     | Times (t1,t2) -> 
         let f = linear_type_aux 4 in
         fprintf ppf (if cond lvl 4 side then "(%a * %a)" else "%a * %a") (f L) t1 (f R) t2
@@ -32,6 +32,10 @@ let rec linear_type_aux lvl side ppf t =
     | Arr (t1, t2) -> 
         let f = linear_type_aux 4 in 
         fprintf ppf (if cond lvl 4 side then "(%a --o %a)" else "%a --o %a") (f L) t1 (f R) t2
+    | Forall (x, t) -> 
+        fprintf ppf "\\/ %s %a" x (linear_type_aux 1 N) t
+    | TypeAbs (x, t) -> 
+        fprintf ppf "%s => %a" x (linear_type_aux 1 N) t
 
 
 let linear_type = linear_type_aux 0 N

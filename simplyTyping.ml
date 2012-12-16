@@ -18,6 +18,10 @@ let rec is_contraction t1 t2 =
     | OfCourse t2' -> is_contraction t1 t2'
     | _ -> false
 
+
+let map_diff m1 m2 =
+  SMap.fold (fun k v m -> SMap.remove k m) m2 m1
+
 let rec type_of_term_aux ctx t =
   match t.node with
   | Var x -> 
@@ -101,7 +105,8 @@ let rec type_of_term_aux ctx t =
 
   | Pro t ->
       let typ_t, ctx' = type_of_term_aux ctx t in
-      if SMap.for_all (fun _ t -> match t.node with OfCourse _ -> true | _ -> false) ctx'
+      let env = map_diff ctx ctx' in
+      if SMap.for_all (fun _ t -> match t.node with OfCourse _ -> true | _ -> false) env
       then !typ_t, ctx'
       else failwith "cannot promote this term"
 
@@ -115,4 +120,8 @@ and variable_shadowing var_list ctx f =
 
   typ, ctx''
 
-let type_of_term ctx typ = fst (type_of_term_aux ctx typ)
+let type_of_term ctx term = 
+  let typ, ctx' = type_of_term_aux ctx term in
+  if SMap.for_all (fun _ t -> match t.node with OfCourse _ -> true | _ -> false) ctx'
+  then typ
+  else failwith "this derivation is not linear"
