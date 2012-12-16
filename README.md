@@ -12,6 +12,7 @@ See module Print to print types and terms.
 
 Requirements : 
 - OCaml (>= 4.00.0) (should work with OCaml >= 3.12)
+- menhir 
 
 Build : 
 From root directory : 
@@ -27,8 +28,8 @@ if you prefer toying with the toplevel.
 
 
 Future works / Projects :
-- add a decent lexer/parser
-- add additives (only plus in fact)
+- add a decent lexer/parser (partially done)
+- add additives (only plus in fact) (done)
 - add propositional linear types inferrence
 - add second order and/or higher order types
 - add effects 
