@@ -36,3 +36,40 @@ Future works / Projects :
 - investigate about differential lambda-calculus
   and co-structural rules
 
+
+
+Syntax (examples in test_nat) :
+
+type_variable ::= A, B, C, ...
+
+linear_type ::=   type_variable
+                | linear_type + linear_type 
+                | linear_type * linear_type 
+                | linear_type -> linear_type
+                | ! linear_type 
+                | ( linear_type )
+                | [def_var]
+
+var ::= x, y, z, ...
+
+typed_pair ::=   var : linear_type
+               | ( var : linear_type )
+
+term ::=   var
+         | term term+
+         | \ typed_pair+ . term
+         | < term ; term >
+         | destruct term as (var, var) in term
+         | { term : linear_type | linear_type }
+         | { linear_type | term : linear_type }
+         | match term as | var -> term | var -> term
+         | [def_var]
+
+
+def_var ::= string
+
+type_def ::= type def_var = linear_type
+
+term_def ::= let def_var = term
+
+file ::= (type_def | term_def)+
